@@ -1,0 +1,144 @@
+{
+  "name": "gc-py-forms",
+  "version": "0.0.1-SNAPSHOT",
+  "commitId": "dev",
+  "buildTime": "2025-11-30T00:00:00Z",
+  "api_version": "v1",
+  "supported_versions": ["v1"],
+  "deprecated_versions": [],
+  "allowed_actions": ["info", "health", "create", "read", "update", "delete"],
+  "allowed_clients": ["noclient", "fixmycar", "repairodo", "fixmygadgets"],
+  "allowed_form_types": {
+    "noclient": ["contacts"],
+    "fixmycar": ["contacts", "feedback", "serviceRequests"],
+    "repairodo": ["contacts", "feedback", "survey", "serviceRequests"],
+    "fixmygadgets": ["contacts", "feedback", "survey", "serviceRequests"]
+  },
+  "validation_rules": {
+    "contacts": ["firstName", "lastName", "email", "message"],
+    "feedback": ["email", "comments"],
+    "survey": ["email", "responses"],
+    "serviceRequests": ["email", "firstName", "lastName", "serviceType", "mobile", "description"]
+  },
+  "field_constraints": {
+    "email": {
+      "type": "email",
+      "required": true,
+      "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+      "maxLength": 255
+    },
+    "mobile": {
+      "type": "phone",
+      "required": false,
+      "pattern": "^[+]?[0-9]{10,15}$",
+      "maxLength": 15
+    },
+    "firstName": {
+      "type": "text",
+      "required": true,
+      "minLength": 2,
+      "maxLength": 50
+    },
+    "lastName": {
+      "type": "text",
+      "required": true,
+      "minLength": 2,
+      "maxLength": 50
+    },
+    "message": {
+      "type": "text",
+      "required": true,
+      "minLength": 10,
+      "maxLength": 1000
+    },
+    "comments": {
+      "type": "text",
+      "required": true,
+      "minLength": 10,
+      "maxLength": 1000
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "serviceType": {
+      "type": "text",
+      "required": true,
+      "maxLength": 100
+    },
+    "responses": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "email_templates": {
+    "contacts": {
+      "subject": "New Contact Form - {client}",
+      "recipients": ["notifications@gadgetcloud.io"],
+      "autoReply": false
+    },
+    "feedback": {
+      "subject": "New Feedback - {client}",
+      "recipients": ["notifications@gadgetcloud.io"],
+      "autoReply": false
+    },
+    "survey": {
+      "subject": "New Survey Response - {client}",
+      "recipients": ["notifications@gadgetcloud.io"],
+      "autoReply": false
+    },
+    "serviceRequests": {
+      "subject": "New Service Request - {client}",
+      "recipients": ["notifications@gadgetcloud.io"],
+      "autoReply": true,
+      "autoReplySubject": "We received your service request",
+      "autoReplyMessage": "Thank you for contacting us! We have received your service request and will get back to you within 24 hours."
+    }
+  },
+  "client_config": {
+    "noclient": {
+      "name": "GadgetCloud",
+      "notification_email": "notifications@gadgetcloud.io",
+      "webhookUrl": null,
+      "allowed_origins": ["*"]
+    },
+    "fixmycar": {
+      "name": "Fix My Car",
+      "notification_email": "fixmycar@gadgetcloud.io",
+      "webhookUrl": null,
+      "allowed_origins": ["https://fixmycar.com", "https://www.fixmycar.com"]
+    },
+    "repairodo": {
+      "name": "Repairodo",
+      "notification_email": "repairodo@gadgetcloud.io",
+      "webhookUrl": null,
+      "allowed_origins": ["https://repairodo.com", "https://www.repairodo.com"]
+    },
+    "fixmygadgets": {
+      "name": "Fix My Gadgets",
+      "notification_email": "fixmygadgets@gadgetcloud.io",
+      "webhookUrl": null,
+      "allowed_origins": ["https://fixmygadgets.com", "https://www.fixmygadgets.com"]
+    }
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "max_requests_per_ip": 10,
+    "max_requests_per_client": 100,
+    "time_window_minutes": 60
+  },
+  "security": {
+    "require_client_header": true,
+    "require_recaptcha": false,
+    "honeypot_field": "_gotcha",
+    "block_suspicious_ips": false,
+    "max_payload_size": 10240
+  },
+  "monitoring": {
+    "log_level": "INFO",
+    "track_metrics": true,
+    "alert_on_error_rate": 0.05
+  }
+}
