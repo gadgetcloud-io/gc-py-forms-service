@@ -31,8 +31,8 @@ output "api_custom_domain_target" {
 }
 
 output "api_certificate_arn" {
-  description = "The ARN of the ACM certificate for the custom domain"
-  value       = var.enable_custom_domain ? aws_acm_certificate.api[0].arn : null
+  description = "The ARN of the ACM wildcard certificate used for the custom domain (from base infrastructure)"
+  value       = var.enable_custom_domain ? data.terraform_remote_state.base_infra.outputs.api_wildcard_certificate_arn : null
 }
 
 # Lambda Outputs

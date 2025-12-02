@@ -26,3 +26,15 @@ provider "aws" {
     }
   }
 }
+
+# Data source to access base infrastructure outputs (for wildcard certificate)
+data "terraform_remote_state" "base_infra" {
+  backend = "s3"
+
+  config = {
+    bucket  = var.terraform_state_bucket
+    key     = "infrastructure/terraform.tfstate"
+    region  = var.aws_region
+    profile = var.aws_profile
+  }
+}

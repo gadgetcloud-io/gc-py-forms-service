@@ -12,7 +12,8 @@
     "noclient": ["contacts"],
     "fixmycar": ["contacts", "feedback", "serviceRequests"],
     "repairodo": ["contacts", "feedback", "survey", "serviceRequests"],
-    "fixmygadgets": ["contacts", "feedback", "survey", "serviceRequests"]
+    "fixmygadgets": ["contacts", "feedback", "survey", "serviceRequests"],
+    "gadgetcloud": ["contacts", "feedback", "survey", "serviceRequests"]
   },
   "validation_rules": {
     "contacts": ["firstName", "lastName", "email", "message"],
