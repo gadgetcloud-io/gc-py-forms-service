@@ -134,3 +134,33 @@ resource "aws_iam_role_policy_attachment" "lambda_cloudwatch_logs" {
   role       = aws_iam_role.lambda_execution.name
   policy_arn = aws_iam_policy.lambda_cloudwatch_logs.arn
 }
+
+# SSM Parameter Store Policy
+resource "aws_iam_policy" "lambda_ssm" {
+  name        = "${var.project_name}-${var.environment}-lambda-ssm"
+  description = "Policy for Lambda to read SSM Parameter Store"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters"
+        ]
+        Resource = "arn:aws:ssm:${var.aws_region}:*:parameter/gadgetcloud/*"
+      }
+    ]
+  })
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-lambda-ssm"
+  }
+}
+
+# Attach SSM Policy to Lambda Execution Role
+resource "aws_iam_role_policy_attachment" "lambda_ssm" {
+  role       = aws_iam_role.lambda_execution.name
+  policy_arn = aws_iam_policy.lambda_ssm.arn
+}

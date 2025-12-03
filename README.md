@@ -38,13 +38,13 @@ A serverless forms processing service built with AWS Lambda, API Gateway, Dynamo
 │  - config.json  │
 └──────┬──────────┘
        │
-       ├──────────────┐
-       │              │
-       ▼              ▼
-┌─────────────┐  ┌──────────┐
-│  DynamoDB   │  │   SES    │
-│ (Submissions)│  │ (Emails) │
-└─────────────┘  └──────────┘
+       ├────────────────┐
+       │                │
+       ▼                ▼
+┌───────────────┐  ┌──────────┐
+│  DynamoDB     │  │   SES    │
+│ (Submissions) │  │ (Emails) │
+└───────────────┘  └──────────┘
 ```
 
 ## API Endpoints

@@ -28,6 +28,7 @@ resource "aws_lambda_function" "forms" {
 
   environment {
     variables = {
+      ENVIRONMENT            = var.environment
       LOG_LEVEL              = "INFO"
       NOTIFICATION_EMAIL     = var.notification_email
       FORM_SUBMISSIONS_TABLE = aws_dynamodb_table.form_submissions.name

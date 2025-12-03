@@ -3,7 +3,7 @@
 .terraform.lock.hcl
 *.tfstate
 *.tfstate.*
-*.tfvars
+#*.tfvars
 !terraform.tfvars.example
 crash.log
 override.tf
@@ -12,6 +12,7 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+tfplan
 
 # Python
 __pycache__/

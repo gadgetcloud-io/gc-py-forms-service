@@ -7,14 +7,6 @@
   "supported_versions": ["v1"],
   "deprecated_versions": [],
   "allowed_actions": ["info", "health", "create", "read", "update", "delete"],
-  "allowed_clients": ["noclient", "fixmycar", "repairodo", "fixmygadgets"],
-  "allowed_form_types": {
-    "noclient": ["contacts"],
-    "fixmycar": ["contacts", "feedback", "serviceRequests"],
-    "repairodo": ["contacts", "feedback", "survey", "serviceRequests"],
-    "fixmygadgets": ["contacts", "feedback", "survey", "serviceRequests"],
-    "gadgetcloud": ["contacts", "feedback", "survey", "serviceRequests"]
-  },
   "validation_rules": {
     "contacts": ["firstName", "lastName", "email", "message"],
     "feedback": ["email", "comments"],
@@ -77,51 +69,21 @@
   "email_templates": {
     "contacts": {
       "subject": "New Contact Form - {client}",
-      "recipients": ["notifications@gadgetcloud.io"],
       "autoReply": false
     },
     "feedback": {
       "subject": "New Feedback - {client}",
-      "recipients": ["notifications@gadgetcloud.io"],
       "autoReply": false
     },
     "survey": {
       "subject": "New Survey Response - {client}",
-      "recipients": ["notifications@gadgetcloud.io"],
       "autoReply": false
     },
     "serviceRequests": {
       "subject": "New Service Request - {client}",
-      "recipients": ["notifications@gadgetcloud.io"],
       "autoReply": true,
       "autoReplySubject": "We received your service request",
       "autoReplyMessage": "Thank you for contacting us! We have received your service request and will get back to you within 24 hours."
-    }
-  },
-  "client_config": {
-    "noclient": {
-      "name": "GadgetCloud",
-      "notification_email": "notifications@gadgetcloud.io",
-      "webhookUrl": null,
-      "allowed_origins": ["*"]
-    },
-    "fixmycar": {
-      "name": "Fix My Car",
-      "notification_email": "fixmycar@gadgetcloud.io",
-      "webhookUrl": null,
-      "allowed_origins": ["https://fixmycar.com", "https://www.fixmycar.com"]
-    },
-    "repairodo": {
-      "name": "Repairodo",
-      "notification_email": "repairodo@gadgetcloud.io",
-      "webhookUrl": null,
-      "allowed_origins": ["https://repairodo.com", "https://www.repairodo.com"]
-    },
-    "fixmygadgets": {
-      "name": "Fix My Gadgets",
-      "notification_email": "fixmygadgets@gadgetcloud.io",
-      "webhookUrl": null,
-      "allowed_origins": ["https://fixmygadgets.com", "https://www.fixmygadgets.com"]
     }
   },
   "rate_limiting": {

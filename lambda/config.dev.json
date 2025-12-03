@@ -1,0 +1,27 @@
+{
+  "environment": "development",
+  "rate_limiting": {
+    "enabled": false
+  },
+  "security": {
+    "require_client_header": false,
+    "block_suspicious_ips": false
+  },
+  "monitoring": {
+    "log_level": "DEBUG"
+  },
+  "client_config": {
+    "noclient": {
+      "allowed_origins": ["*"]
+    },
+    "fixmycar": {
+      "allowed_origins": ["*"]
+    },
+    "repairodo": {
+      "allowed_origins": ["*"]
+    },
+    "fixmygadgets": {
+      "allowed_origins": ["*"]
+    }
+  }
+}

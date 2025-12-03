@@ -1,0 +1,19 @@
+{
+  "environment": "production",
+  "rate_limiting": {
+    "enabled": true,
+    "max_requests_per_ip": 10,
+    "max_requests_per_client": 100,
+    "time_window_minutes": 60
+  },
+  "security": {
+    "require_client_header": true,
+    "require_recaptcha": false,
+    "block_suspicious_ips": true
+  },
+  "monitoring": {
+    "log_level": "INFO",
+    "track_metrics": true,
+    "alert_on_error_rate": 0.05
+  }
+}

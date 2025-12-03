@@ -25,18 +25,78 @@ except ImportError:
 # AWS clients
 dynamodb = boto3.resource('dynamodb')
 ses_client = boto3.client('ses')
+ssm_client = boto3.client('ssm')
 
 # Environment variables
 FORM_SUBMISSIONS_TABLE = os.environ.get('FORM_SUBMISSIONS_TABLE')
 NOTIFICATION_EMAIL = os.environ.get('NOTIFICATION_EMAIL')
+CLIENTS_PARAM_NAME = os.environ.get('CLIENTS_PARAM_NAME', '/gadgetcloud/clients')
 
 # Get DynamoDB table
 submissions_table = dynamodb.Table(FORM_SUBMISSIONS_TABLE)
 
-# Load configuration
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.json')
-with open(CONFIG_FILE, 'r') as f:
-    CONFIG = json.load(f)
+
+def load_clients():
+    """Load clients configuration from SSM Parameter Store"""
+    try:
+        response = ssm_client.get_parameter(Name=CLIENTS_PARAM_NAME)
+        return json.loads(response['Parameter']['Value'])
+    except Exception as e:
+        print(f"Error loading clients from Parameter Store: {e}")
+        return {}
+
+
+def load_config():
+    """Load base config and merge with environment-specific overrides"""
+    base_dir = os.path.dirname(__file__)
+
+    # Load base config
+    with open(os.path.join(base_dir, 'config.json'), 'r') as f:
+        config = json.load(f)
+
+    # Get environment from Lambda env var (default to 'dev')
+    env = os.environ.get('ENVIRONMENT', 'dev')
+
+    # Load environment-specific overrides
+    env_config_file = os.path.join(base_dir, f'config.{env}.json')
+    if os.path.exists(env_config_file):
+        with open(env_config_file, 'r') as f:
+            env_config = json.load(f)
+        config = deep_merge(config, env_config)
+
+    # Load clients from Parameter Store
+    clients = load_clients()
+    if clients:
+        config['clients'] = clients
+        config['allowed_clients'] = list(clients.keys())
+
+    return config
+
+
+def deep_merge(base: dict, override: dict) -> dict:
+    """Deep merge override into base config"""
+    result = base.copy()
+    for key, value in override.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = deep_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+
+CONFIG = load_config()
+
+
+def get_client_config(client: str) -> dict:
+    """Get client configuration from centralized clients store"""
+    clients = CONFIG.get('clients', {})
+    return clients.get(client, clients.get('noclient', {}))
+
+
+def get_allowed_form_types(client: str) -> list:
+    """Get allowed form types for a client"""
+    client_config = get_client_config(client)
+    return client_config.get('form_types', [])
 
 
 def lambda_handler(event, context):
@@ -110,7 +170,7 @@ def submit_form(event):
         # Extract parameters
         client = body.get('client', 'noclient')
         form_type = body.get('type', body.get('formType'))
-        form_data = body.get('data', {})
+        form_data = body.get('data', body.get('formData', {}))
 
         # Security check: Honeypot
         honeypot_field = CONFIG['security']['honeypot_field']
@@ -129,13 +189,9 @@ def submit_form(event):
             return response(400, {'error': error})
 
         # Validate form type for client
-        is_valid, error = validate_form_type(
-            form_type,
-            client,
-            CONFIG['allowed_form_types']
-        )
-        if not is_valid:
-            return response(400, {'error': error})
+        allowed_form_types = get_allowed_form_types(client)
+        if form_type not in allowed_form_types:
+            return response(400, {'error': f"Form type '{form_type}' not allowed for client '{client}'"})
 
         # Check rate limiting
         if CONFIG['rate_limiting']['enabled']:
@@ -245,13 +301,13 @@ def check_rate_limit(ip_address: str, client: str) -> tuple:
 def send_notification_email(submission_id: str, client: str, form_type: str, form_data: dict, timestamp: str):
     """Send email notification to admin"""
     template = CONFIG['email_templates'].get(form_type, CONFIG['email_templates']['contacts'])
-    client_config = CONFIG['client_config'].get(client, CONFIG['client_config']['noclient'])
+    client_config = get_client_config(client)
 
     # Determine recipients
-    recipients = [client_config['notification_email']]
+    recipients = [client_config.get('notification_email', NOTIFICATION_EMAIL)]
 
     # Build subject
-    subject = template['subject'].replace('{client}', client_config['name'])
+    subject = template['subject'].replace('{client}', client_config.get('name', client))
 
     # Format form data
     form_data_text = "\n".join([f"{key}: {value}" for key, value in form_data.items()])
@@ -262,10 +318,11 @@ def send_notification_email(submission_id: str, client: str, form_type: str, for
     ])
 
     # Email body
+    client_name = client_config.get('name', client)
     body_text = f"""
 New form submission received!
 
-Client: {client_config['name']}
+Client: {client_name}
 Submission ID: {submission_id}
 Form Type: {form_type}
 Timestamp: {timestamp}
@@ -287,7 +344,7 @@ This is an automated notification from GadgetCloud Forms.
     </h2>
 
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-      <p><strong>Client:</strong> {client_config['name']}</p>
+      <p><strong>Client:</strong> {client_name}</p>
       <p><strong>Submission ID:</strong> {submission_id}</p>
       <p><strong>Form Type:</strong> {form_type}</p>
       <p><strong>Timestamp:</strong> {timestamp}</p>
@@ -340,7 +397,8 @@ def send_auto_reply(client: str, form_type: str, form_data: dict):
     if not user_email:
         return
 
-    client_config = CONFIG['client_config'].get(client, CONFIG['client_config']['noclient'])
+    client_config = get_client_config(client)
+    client_name = client_config.get('name', client)
 
     subject = template.get('autoReplySubject', 'Thank you for your submission')
     message = template.get('autoReplyMessage', 'We have received your submission and will get back to you soon.')
@@ -350,7 +408,7 @@ def send_auto_reply(client: str, form_type: str, form_data: dict):
 <head></head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h2 style="color: #2c3e50;">{client_config['name']}</h2>
+    <h2 style="color: #2c3e50;">{client_name}</h2>
     <p>{message}</p>
 
     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
@@ -384,11 +442,10 @@ def call_webhook(client: str, submission_id: str, form_type: str, form_data: dic
         print("Webhook not called: requests library not available")
         return
 
-    client_config = CONFIG['client_config'].get(client)
-    if not client_config or not client_config.get('webhookUrl'):
+    client_config = get_client_config(client)
+    webhook_url = client_config.get('webhookUrl')
+    if not webhook_url:
         return
-
-    webhook_url = client_config['webhookUrl']
     payload = {
         'submissionId': submission_id,
         'client': client,
