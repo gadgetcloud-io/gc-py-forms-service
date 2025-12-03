@@ -171,6 +171,7 @@ def submit_form(event):
         client = body.get('client', 'noclient')
         form_type = body.get('type', body.get('formType'))
         form_data = body.get('data', body.get('formData', {}))
+        tags = body.get('tags', '')
 
         # Security check: Honeypot
         honeypot_field = CONFIG['security']['honeypot_field']
@@ -233,7 +234,8 @@ def submit_form(event):
             'formData': sanitized_data,
             'sourceIp': source_ip,
             'userAgent': user_agent,
-            'status': 'received'
+            'status': 'received',
+            'tags': tags
         }
 
         submissions_table.put_item(Item=item)

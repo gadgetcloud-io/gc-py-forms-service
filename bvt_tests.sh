@@ -73,6 +73,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "'"$CLIENT"'",
     "formType": "contacts",
+    "tags": "BVT,tests",
     "formData": {
       "firstName": "John",
       "lastName": "Doe",
@@ -94,6 +95,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "'"$CLIENT"'",
     "formType": "feedback",
+    "tags": "BVT,tests",
     "formData": {
       "email": "feedback@example.com",
       "comments": "This is test feedback submitted via test script"
@@ -113,6 +115,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "'"$CLIENT"'",
     "formType": "serviceRequests",
+    "tags": "BVT,tests",
     "formData": {
       "firstName": "Jane",
       "lastName": "Smith",
@@ -136,6 +139,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "'"$CLIENT"'",
     "formType": "survey",
+    "tags": "BVT,tests",
     "formData": {
       "email": "survey@example.com",
       "responses": {
@@ -159,6 +163,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "invalidclient",
     "formType": "contacts",
+    "tags": "BVT,tests",
     "formData": {
       "firstName": "Test",
       "lastName": "User",
@@ -180,6 +185,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "'"$CLIENT"'",
     "formType": "contacts",
+    "tags": "BVT,tests",
     "formData": {
       "firstName": "Test"
     }
@@ -198,6 +204,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "'"$CLIENT"'",
     "formType": "contacts",
+    "tags": "BVT,tests",
     "formData": {
       "firstName": "Test",
       "lastName": "User",
@@ -219,6 +226,7 @@ RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/forms" \
   -d '{
     "client": "'"$CLIENT"'",
     "formType": "invalidtype",
+    "tags": "BVT,tests",
     "formData": {
       "email": "test@example.com"
     }
