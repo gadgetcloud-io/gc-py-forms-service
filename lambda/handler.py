@@ -225,12 +225,16 @@ def submit_form(event):
         timestamp_iso = datetime.utcnow().isoformat()
 
         # Store in DynamoDB
+        # Flatten email to top-level for GSI querying
+        email = sanitized_data.get('email', '')
+
         item = {
             'submissionId': submission_id,
             'timestamp': timestamp,
             'timestampIso': timestamp_iso,
             'client': client,
             'formType': form_type,
+            'email': email,
             'formData': sanitized_data,
             'sourceIp': source_ip,
             'userAgent': user_agent,

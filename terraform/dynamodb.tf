@@ -25,6 +25,11 @@ resource "aws_dynamodb_table" "form_submissions" {
     type = "S"
   }
 
+  attribute {
+    name = "email"
+    type = "S"
+  }
+
   # Global Secondary Index for querying by form type
   global_secondary_index {
     name            = "FormTypeIndex"
@@ -37,6 +42,14 @@ resource "aws_dynamodb_table" "form_submissions" {
   global_secondary_index {
     name            = "ClientIndex"
     hash_key        = "client"
+    range_key       = "timestamp"
+    projection_type = "ALL"
+  }
+
+  # Global Secondary Index for querying by email
+  global_secondary_index {
+    name            = "EmailIndex"
+    hash_key        = "email"
     range_key       = "timestamp"
     projection_type = "ALL"
   }
