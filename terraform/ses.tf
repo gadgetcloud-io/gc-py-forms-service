@@ -13,12 +13,24 @@ resource "aws_ses_domain_dkim" "main" {
   domain = aws_ses_domain_identity.main.domain
 }
 
-# SES Domain Verification (requires DNS records to be set up)
-resource "aws_ses_domain_identity_verification" "main" {
-  domain = aws_ses_domain_identity.main.id
+# Route53 TXT record for SES domain verification
+resource "aws_route53_record" "ses_verification" {
+  count = var.enable_custom_domain ? 1 : 0
 
-  depends_on = [aws_ses_domain_identity.main]
+  zone_id = data.terraform_remote_state.base_infra.outputs.route53_zone_id
+  name    = "_amazonses.${var.ses_domain}"
+  type    = "TXT"
+  ttl     = 600
+  records = [aws_ses_domain_identity.main.verification_token]
 }
+
+# SES Domain Verification (requires DNS records to be set up)
+# Commented out to avoid timeout issues - domain is already verified manually
+# resource "aws_ses_domain_identity_verification" "main" {
+#   domain = aws_ses_domain_identity.main.id
+#
+#   depends_on = [aws_ses_domain_identity.main, aws_route53_record.ses_verification]
+# }
 
 # SES Configuration Set
 resource "aws_ses_configuration_set" "main" {
