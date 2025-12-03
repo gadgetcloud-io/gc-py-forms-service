@@ -1,0 +1,36 @@
+meta {
+  name: Service Request
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/forms
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "client": "{{client}}",
+    "formType": "serviceRequests",
+    "formData": {
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "jane.smith@example.com",
+      "serviceType": "Repair",
+      "mobile": "+919876543210",
+      "description": "This is a test service request submitted via Bruno API client for testing purposes"
+    }
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("has submissionId", function() {
+    expect(res.body.submissionId).to.be.a("string");
+  });
+}

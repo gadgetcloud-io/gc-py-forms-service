@@ -1,0 +1,31 @@
+meta {
+  name: Missing Required Fields
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/forms
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "client": "{{client}}",
+    "formType": "contacts",
+    "formData": {
+      "firstName": "Test"
+    }
+  }
+}
+
+tests {
+  test("status is 400", function() {
+    expect(res.status).to.equal(400);
+  });
+
+  test("has validation error", function() {
+    expect(res.body.error).to.equal("Validation failed");
+  });
+}

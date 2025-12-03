@@ -1,0 +1,38 @@
+meta {
+  name: Contact Form
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/forms
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "client": "{{client}}",
+    "formType": "contacts",
+    "formData": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
+      "message": "This is a test message from Bruno API client"
+    }
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("has submissionId", function() {
+    expect(res.body.submissionId).to.be.a("string");
+  });
+
+  test("status is received", function() {
+    expect(res.body.status).to.equal("received");
+  });
+}

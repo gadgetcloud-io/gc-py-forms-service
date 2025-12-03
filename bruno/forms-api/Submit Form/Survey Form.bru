@@ -1,0 +1,36 @@
+meta {
+  name: Survey Form
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/forms
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "client": "{{client}}",
+    "formType": "survey",
+    "formData": {
+      "email": "survey@example.com",
+      "responses": {
+        "question1": "Very Satisfied",
+        "question2": "Yes",
+        "question3": "5"
+      }
+    }
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("has submissionId", function() {
+    expect(res.body.submissionId).to.be.a("string");
+  });
+}

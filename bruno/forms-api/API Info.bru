@@ -1,0 +1,21 @@
+meta {
+  name: API Info
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/forms/info
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("has allowed_clients", function() {
+    expect(res.body.allowed_clients).to.be.an("array");
+  });
+}

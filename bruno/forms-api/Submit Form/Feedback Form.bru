@@ -1,0 +1,32 @@
+meta {
+  name: Feedback Form
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/forms
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "client": "{{client}}",
+    "formType": "feedback",
+    "formData": {
+      "email": "feedback@example.com",
+      "comments": "This is test feedback submitted via Bruno API client"
+    }
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("has submissionId", function() {
+    expect(res.body.submissionId).to.be.a("string");
+  });
+}
